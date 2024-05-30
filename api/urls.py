@@ -4,6 +4,8 @@ from . import views
 app_name='api'
 
 urlpatterns=[
-    path("img/",views.ImageView.as_view()),
+    path("img/<int:id>/",views.ImageView.as_view()),
+    path('create/',views.CreateTypeAndModeAPIView.as_view())
+
 
 ]

@@ -18,3 +18,9 @@ class ModeAdmin(admin.ModelAdmin):
 admin.site.register(models.mode, ModeAdmin)
 
 admin.site.register(models.session)
+
+admin.site.register(models.Category)
+
+
+
+admin.site.register(models.Type)
