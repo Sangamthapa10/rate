@@ -16,13 +16,14 @@ class ImageView(APIView):
     def get(self, request, *args, **kwargs):
         id = kwargs.get('id')
         if id  == 0:
-            count = mode.objects.count()
+            default=Type.objects.get(default=True)
+            count = mode.objects.filter(type=default.id).count()
             if count < 2:
                 return Response({'error': 'Not enough images available'}, status=status.HTTP_400_BAD_REQUEST)
             random_indices = random.sample(range(count), 2)
-            images = [mode.objects.all( )[index] for index in random_indices]
+            images = [mode.objects.filter(type=default.id )[index] for index in random_indices]
             serializer = serializers.ImageModelSerializers(images, context={"request": request}, many=True)
-            top=mode.objects.order_by('-score')[:5]
+            top=mode.objects.filter(type=default.id).order_by('-score')[:5]
             serializerq = serializers.ImageModelSerializers(top, context={"request": request}, many=True)
             category=Type.objects.all();
             category_serializer=serializers.categorySerializer(category,context={"request": request}, many=True)
@@ -59,13 +60,16 @@ class ImageView(APIView):
 
 
     def post(self, request, *args, **kwargs):
+        type_id=kwargs.get("id")
+        if type_id  == 0:
+            type_id = Type.objects.get(default=True).id
         exclude = request.data.get("ids", [])
         selected = request.data.get("selected")
         print(exclude)
         if selected is None:
             return Response({"error": "No selected image provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-        images = mode.objects.exclude(id__in=exclude)
+        images = mode.objects.exclude(id__in=exclude).filter(type=type_id)
 
         if not images.exists():  # Check if the queryset is empty
             qw = session.objects.create(
